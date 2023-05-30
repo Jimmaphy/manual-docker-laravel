@@ -12,10 +12,11 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+// The route for the home page
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/hello', function () {
-    return view('welcome');
-});
+// The route for the github-accounts page
+Route::resource('github-accounts', 'GithubAccountController');
