@@ -11,7 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
+        // Create the github_accounts table
+        Schema::create('github_accounts', function (Blueprint $table) {
+            $table->id();
+            $table->string('username');
+        });
     }
 
     /**
@@ -19,6 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        // Drop the github_accounts table
+        Schema::dropIfExists('github_accounts');
     }
 };

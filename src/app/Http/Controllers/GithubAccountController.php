@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GithubAccount;
 use Illuminate\Http\Request;
 
 class GithubAccountController extends Controller
@@ -11,7 +12,8 @@ class GithubAccountController extends Controller
      */
     public function index()
     {
-        //
+        $githubAccounts = GithubAccount::all();
+        return view('github-accounts.index', compact('githubAccounts'));
     }
 
     /**
@@ -19,7 +21,7 @@ class GithubAccountController extends Controller
      */
     public function create()
     {
-        //
+        return view('github-accounts.create');
     }
 
     /**
@@ -27,7 +29,8 @@ class GithubAccountController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $githubAccount = GithubAccount::create($request->all());
+        return redirect()->route('github-accounts.show', $githubAccount->id);
     }
 
     /**
@@ -35,7 +38,8 @@ class GithubAccountController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $githubAccount = GithubAccount::findOrFail($id);
+        return view('github-accounts.show', compact('githubAccount'));
     }
 
     /**
@@ -43,7 +47,8 @@ class GithubAccountController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $githubAccount = GithubAccount::findOrFail($id);
+        return view('github-accounts.edit', compact('githubAccount'));
     }
 
     /**
@@ -51,7 +56,9 @@ class GithubAccountController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $githubAccount = GithubAccount::findOrFail($id);
+        $githubAccount->update($request->all());
+        return redirect()->route('github-accounts.show', $githubAccount->id);
     }
 
     /**
@@ -59,6 +66,8 @@ class GithubAccountController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $githubAccount = GithubAccount::findOrFail($id);
+        $githubAccount->delete();
+        return redirect()->route('github-accounts.index');
     }
 }
