@@ -1,0 +1,56 @@
+version: '3'
+
+# Setting up the network
+networks:
+  laravelnetwork:
+    driver: bridge
+
+# Setting up the services (containers)
+services:
+  laravel:
+    build: ./
+    networks:
+      - laravelnetwork
+    volumes:
+      - ./src/:/var/www/html/
+    ports:
+      - 8080:80
+    # command: chown -R www-data:www-data ./storage/ && chmod -R 775 storage
+
+  mysql:
+    image: mysql:8.0
+    networks:
+      - laravelnetwork
+    volumes:
+      - ./data:/var/lib/mysql
+    environment:
+      - "MYSQL_ROOT_PASSWORD=root"
+      - "MYSQL_DATABASE=laravel"
+
+  node:
+    image: node:latest
+    networks:
+      - laravelnetwork
+    volumes:
+      - ./src/:/var/app/
+    working_dir: /var/app/
+    command: npm install && npm run dev
+
+  composer:
+    image: composer:latest
+    volumes:
+      - ./src/:/var/app/
+    working_dir: /var/app/
+    command: composer install
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    networks:
+      - laravelnetwork
+    ports:
+      - 8081:80
+    environment:
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+      - PMA_USER=root
+      - PMA_PASSWORD=root
