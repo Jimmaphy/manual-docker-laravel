@@ -42,4 +42,48 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * The attributes that should be appended.
+     *
+     * @var array<int, string>
+     */
+    protected $with = [
+        'socials',
+    ];
+   
+    /**
+     * Get the user's social media accounts.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function socials()
+    {
+        return $this->hasMany(SocialMediaAccount::class);
+    }
+
+    protected $appends = [
+        'github',
+    ];
+
+    /**
+     * Get the user's github account.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function getGithubAttribute()
+    {
+        return $this->getSocial('github');
+    }
+
+    private function getSocial($socialName) 
+    {
+        foreach ($this->socials as $social) {
+            if (strtolower($social->social_media) === $socialName) {
+                return $social;
+            }
+        }
+
+        return null;
+    }
 }

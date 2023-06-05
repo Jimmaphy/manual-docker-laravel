@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Create the github_accounts table
-        Schema::create('github_accounts', function (Blueprint $table) {
-            $table->id();
-            $table->string('username');
+        Schema::create('social_media', function (Blueprint $table) {
+            $table->string('name');
+            $table->string('url');
+            $table->string('api_url');
+            $table->string('icon')->nullable();
+            $table->string('api_key')->nullable();
+
+            $table->primary('name');
         });
     }
 
@@ -23,7 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Drop the github_accounts table
-        Schema::dropIfExists('github_accounts');
+        Schema::dropIfExists('social_media');
     }
 };

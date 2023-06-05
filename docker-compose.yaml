@@ -27,7 +27,7 @@ services:
       - 9090:3306
     environment:
       - "MYSQL_ROOT_PASSWORD=root"
-      - "MYSQL_DATABASE=laravel"
+      - "MYSQL_DATABASE=socialstats"
 
   node:
     image: node:latest
