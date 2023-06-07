@@ -15,7 +15,7 @@
 
     <form method="post" action="{{ route('profile.socials') }}" class="mt-6 space-y-6">
         @csrf
-        @method('patch')
+        @method('post')
 
         <div>
             <x-input-label for="github" :value="__('GitHub')" />
