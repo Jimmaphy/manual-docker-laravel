@@ -88,3 +88,58 @@ docker system prune
 De laatste stap voor de opdracht is het maken van een crud opdracht.
 Ik heb hiervoor een tabel gemaakt waar GitHub gebruikers in worden opgeslagen.
 Deze zullen laten in het project gebruikt worden om gegevens van te laden.
+Er is een mogelijkheid gemaakt voor gebruikers om hun Sociale Media accounts in te vullen.
+De instelling is verwerkt in de profiel pagina van het project.
+Er zijn twee tabellen gemaakt, eentje voor het bijhouden van de sociale media, en eentje voor de gebruikers.
+De tabel voor de gebruikers heeft een foreign key naar de tabel van de sociale media.
+
+```php
+Schema::create('social_media_accounts', function (Blueprint $table) {
+    $table->string('username');
+    $table->string('social_media');
+    
+    $table->foreign('social_media')
+            ->references('name')
+            ->on('social_media')
+            ->cascadeOnDelete();
+
+    $table->foreignId('user_id')
+            ->constrained()
+            ->cascadeOnDelete();
+
+    $table->primary(['social_media', 'user_id']);
+});
+```
+
+Vervolgens worden de gegevens opgehaald in de model van de gebruiker,
+zodat deze overal beschikbaar zijn (read).
+Aanmaken, bijwerken en verwijderen gebeurd in de controller van de sociale media gebruiker.
+Dit gebeurd in één enkele functie.
+
+```php
+/**
+ * Update the social media accounts of the user
+ * This will be called when the user submits the form on the profile page
+ */
+public function update() 
+{
+    // Get the data from the request and get the accounts
+    $data = request()->all();
+    $user = auth()->user();
+
+    // Create an dictionary of the accounts given
+    $givenAccounts = array(
+        'GitHub' => $data['github'],
+    );
+
+    // Perform the right action for the given accounts
+    foreach($givenAccounts as $media => $account) {
+        $this->createAccountIfNotExists($user, $media, $account);
+        $this->updateAccountWhenPresent($user, $media, $account);
+        $this->deleteAccountWhenEmpty($user, $media, $account);
+    }
+
+    // Redirect back to the profile page
+    return Redirect::route('profile.edit')->with('status', 'socials-updated');
+}
+```
