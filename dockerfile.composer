@@ -1,3 +1,0 @@
-FROM composer:latest
-WORKDIR /var/app/
-CMD [ "composer", "install" ]

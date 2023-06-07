@@ -1,0 +1,49 @@
+version: '3'
+
+# Setting up the network
+networks:
+  laravelnetwork:
+    driver: bridge
+
+# Setting up the services (containers)
+services:
+  # De laravel App
+  laravel:
+    build: ./
+    networks:
+      - laravelnetwork
+    volumes:
+      - ./src/:/var/www/html/
+    ports:
+      - 8080:80
+
+  mysql:
+    image: mysql:8.0
+    networks:
+      - laravelnetwork
+    volumes:
+      - ./data:/var/lib/mysql
+    ports:
+      - 9090:3306
+    environment:
+      - "MYSQL_ROOT_PASSWORD=root"
+      - "MYSQL_DATABASE=socialstats"
+
+  node:
+    image: node:latest
+    networks:
+      - laravelnetwork
+    volumes:
+      - ./src/:/var/app/
+    ports:
+      - 5173:5173
+    working_dir: /var/app/
+    command: npm install
+    entrypoint: npm run dev
+
+  composer:
+    image: composer:latest
+    volumes:
+      - ./src/:/var/app/
+    working_dir: /var/app/
+    command: composer install
