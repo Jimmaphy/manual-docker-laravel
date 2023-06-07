@@ -7,6 +7,7 @@ networks:
 
 # Setting up the services (containers)
 services:
+  # De laravel App
   laravel:
     build: ./
     networks:
@@ -15,7 +16,6 @@ services:
       - ./src/:/var/www/html/
     ports:
       - 8080:80
-    # command: chown -R www-data:www-data ./storage/ && chmod -R 775 storage
 
   mysql:
     image: mysql:8.0

@@ -7,7 +7,7 @@ Dit is een pagina van mijn bedrijf waarmee ik instructies maak voor informatica.
 
 [AMP Stack met Docker](https://github.com/De-Informatica-Student/docker-amp-stack)
 
-## Laravel Installeren
+## Laravel Installeren (Opdracht 1)
 
 Om laravel te installeren op deze installatie moeten we een aantal dingen doen.
 We gebruiken dezelfde werkwijze als MySQL om Composer en Node te installeren.
@@ -27,6 +27,9 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 # Rewrite mod allows the app to change the way the server handles urls
 RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf 
 RUN a2enmod rewrite
+
+# Set the working directory to the root of the website
+WORKDIR /var/www/html/
 ```
 
 Vanaf dit punt kunnen we de console gebruiken om laravel te installeren.
@@ -42,7 +45,8 @@ CMD [ "composer", "install" ]
 # dockerfile.node
 FROM node:20-alpine
 WORKDIR /var/app/
-CMD [ "npm", "install" ]
+RUN [ "npm", "install" ]
+ENTRYPOINT npm run dev
 ```
 
 Voor deze opdracht is het gebruik van docker-compose niet toegestaan.
@@ -83,7 +87,21 @@ docker stop mynode
 docker system prune
 ```
 
-## CRUD
+## Authenticatie (Opdracht 3)
+
+De eerste opdracht is het maken van een authenticatie systeem.
+Dit is peroongelijk de derde opdracht van het project.
+Deze opdracht is gemaakt door middel van de ingebouwde functies van Laravel.
+Vervolgens staat alles klaar en kan er begonnen worden met het maken van de applicatie.
+Hiervoor is het volgende commando uitgevoerd:
+
+```powershell
+docker exec mycomposer composer require laravel/breeze --dev
+docker exec myapp php artisan breeze:install
+docker exec php artisan migrate
+```
+
+## CRUD (Opdracht 1)
 
 De laatste stap voor de opdracht is het maken van een crud opdracht.
 Ik heb hiervoor een tabel gemaakt waar GitHub gebruikers in worden opgeslagen.
@@ -142,4 +160,71 @@ public function update()
     // Redirect back to the profile page
     return Redirect::route('profile.edit')->with('status', 'socials-updated');
 }
+```
+
+## Docker Compose (Opdracht 2)
+
+Om Docker Compose toe te passen wordt er een docker-compose.yml bestand gemaakt.
+Hierin worden de containers gedefinieerd en de netwerken.
+We houden één dockerfile over, dit is de applicatie zelf.
+Deze veranderd niet ten opzichte van de eerdere versies.
+
+```yaml
+version: '3'
+
+# Setting up the network
+networks:
+  laravelnetwork:
+    driver: bridge
+
+# Setting up the services (containers)
+services:
+  # De laravel App
+  laravel:
+    build: ./
+    networks:
+      - laravelnetwork
+    volumes:
+      - ./src/:/var/www/html/
+    ports:
+      - 8080:80
+```
+
+MySQL, Node en Composer worden echter wel samengevoegd.
+Deze worden volledig gedefinieerd in het docker-compose.yml bestand.
+Zowel de gegevens van de dockerfiles als de powershell scripts worden hierin verwerkt.
+Het enige dat moet gebeuren is ```./data/``` in het project leeg maken.
+We hebben namelijk de naam van de database veranderd.
+
+```yaml
+  mysql:
+    image: mysql:8.0
+    networks:
+      - laravelnetwork
+    volumes:
+      - ./data:/var/lib/mysql
+    ports:
+      - 9090:3306
+    environment:
+      - "MYSQL_ROOT_PASSWORD=root"
+      - "MYSQL_DATABASE=socialstats"
+
+  node:
+    image: node:latest
+    networks:
+      - laravelnetwork
+    volumes:
+      - ./src/:/var/app/
+    ports:
+      - 5173:5173
+    working_dir: /var/app/
+    command: npm install
+    entrypoint: npm run dev
+
+  composer:
+    image: composer:latest
+    volumes:
+      - ./src/:/var/app/
+    working_dir: /var/app/
+    command: composer install
 ```
